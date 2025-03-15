@@ -34,6 +34,10 @@ def fetch_data():
         # Convert to DataFrame
         data = pd.DataFrame(response.data)
         
+        # Debug: Print raw data types
+        print("Original data types:")
+        print(data.dtypes)
+        
         # Rename start_date to date if it exists
         if 'start_date' in data.columns and 'date' not in data.columns:
             data = data.rename(columns={'start_date': 'date'})
@@ -42,18 +46,43 @@ def fetch_data():
         if 'date' in data.columns:
             data['date'] = pd.to_datetime(data['date'])
         
-        # Handle numeric columns - conversion with error handling
+        # Identify problematic columns and catch conversion errors for each column separately
         numeric_columns = ['distance', 'duration', 'pace', 'heart_rate', 'elevation_gain']
+        
+        # Process each column individually
         for col in numeric_columns:
             if col in data.columns:
-                # Convert with error handling
-                data[col] = pd.to_numeric(data[col], errors='coerce')
+                try:
+                    # First check for problematic values
+                    print(f"Processing column: {col}")
+                    print(f"Sample values in {col}: {data[col].head().tolist()}")
+                    
+                    # Convert with extra safety
+                    data[col] = data[col].astype(str).str.replace(',', '.').str.extract('([-+]?\d*\.?\d+)', expand=False)
+                    data[col] = pd.to_numeric(data[col], errors='coerce')
+                    
+                except Exception as col_error:
+                    print(f"Error processing column {col}: {col_error}")
+                    # If conversion fails, set column to NaN
+                    data[col] = np.nan
         
-        # Remove rows with invalid numeric data
-        data = data.dropna(subset=[col for col in numeric_columns if col in data.columns])
+        # For debugging, print any rows with extremely large strings
+        for col in data.columns:
+            if data[col].dtype == 'object':
+                # Check for suspiciously long strings
+                max_len = data[col].astype(str).map(len).max()
+                if max_len > 1000:  # Arbitrary threshold for "too long"
+                    print(f"Column {col} has suspicious long values (max length: {max_len})")
+                    # Find the problematic rows
+                    long_value_indices = data[col].astype(str).map(len) > 1000
+                    print(f"Rows with long values: {long_value_indices.sum()}")
+                    # Set these to NaN
+                    data.loc[long_value_indices, col] = np.nan
         
         return data
+    
     except Exception as e:
+        print(f"Error in fetch_data: {e}")
         st.error(f"Error fetching data: {e}")
         # Return empty DataFrame for debugging
         return pd.DataFrame()
@@ -459,6 +488,26 @@ def main():
             st.warning("No data found in Supabase or connection issue. Using sample data for demonstration.")
             df = get_sample_data()
             st.info("⚠️ Using SAMPLE DATA for demonstration. Connect your Supabase to see your actual data.")
+        else:
+            # Debug data preview
+            with st.expander("Debug: Data Preview"):
+                st.write("First 5 rows of data:")
+                st.write(df.head())
+                st.write("Data types:")
+                st.write(df.dtypes)
+                st.write("Data shape:", df.shape)
+                
+                # Check for problematic values
+                for col in df.columns:
+                    if df[col].dtype != 'datetime64[ns]' and df[col].dtype != 'object':
+                        try:
+                            min_val = df[col].min()
+                            max_val = df[col].max()
+                            st.write(f"{col}: min={min_val}, max={max_val}")
+                        except Exception as e:
+                            st.write(f"Could not compute stats for {col}: {e}")
+        
+        # Rest of your code remains the same...
         
         # Add sidebar for filtering
         st.sidebar.header("Filter Data")
