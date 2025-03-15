@@ -34,6 +34,10 @@ def fetch_data():
         # Convert to DataFrame
         data = pd.DataFrame(response.data)
         
+        # Rename start_date to date if it exists
+        if 'start_date' in data.columns and 'date' not in data.columns:
+            data = data.rename(columns={'start_date': 'date'})
+        
         # Convert date strings to datetime objects
         if 'date' in data.columns:
             data['date'] = pd.to_datetime(data['date'])
@@ -63,41 +67,41 @@ def get_sample_data():
 
 # 5. Running Consistency Calendar Heatmap
 def render_consistency_heatmap(df):
-    if 'start_date' not in df.columns or df.empty:
+    if 'date' not in df.columns or df.empty:
         st.error("No date data available for heatmap.")
         return
     
     # Create a calendar heatmap
     # Get the year range
-    min_year = df['start_date'].dt.year.min()
-    max_year = df['start_date'].dt.year.max()
+    min_year = df['date'].dt.year.min()
+    max_year = df['date'].dt.year.max()
     
     # Year selection
     selected_year = st.selectbox("Select Year", range(min_year, max_year + 1), index=len(range(min_year, max_year + 1)) - 1)
     
     # Filter data for the selected year
-    year_data = df[df['start_date'].dt.year == selected_year]
+    year_data = df[df['date'].dt.year == selected_year]
     
     if year_data.empty:
         st.info(f"No running data available for {selected_year}.")
         return
     
     # Create daily activity count
-    daily_counts = year_data.groupby(year_data['start_date'].dt.start_date).size().reset_index()
-    daily_counts.columns = ['start_date', 'count']
+    daily_counts = year_data.groupby(year_data['date'].dt.date).size().reset_index()
+    daily_counts.columns = ['date', 'count']
     
     # Create a complete date range for the year
     all_dates = pd.date_range(start=f"{selected_year}-01-01", end=f"{selected_year}-12-31", freq='D')
-    all_dates_df = pd.DataFrame({'start_date': all_dates})
-    all_dates_df['start_date'] = all_dates_df['date'].dt.date
+    all_dates_df = pd.DataFrame({'date': all_dates})
+    all_dates_df['date'] = all_dates_df['date'].dt.date
     
     # Merge with actual data to include zeros for days with no activity
-    merged_data = all_dates_df.merge(daily_counts, on='start_date', how='left').fillna(0)
+    merged_data = all_dates_df.merge(daily_counts, on='date', how='left').fillna(0)
     
     # Format for calendar heatmap
-    merged_data['month'] = pd.to_datetime(merged_data['start_date']).dt.month
-    merged_data['day'] = pd.to_datetime(merged_data['start_date']).dt.day
-    merged_data['weekday'] = pd.to_datetime(merged_data['start_date']).dt.weekday
+    merged_data['month'] = pd.to_datetime(merged_data['date']).dt.month
+    merged_data['day'] = pd.to_datetime(merged_data['date']).dt.day
+    merged_data['weekday'] = pd.to_datetime(merged_data['date']).dt.weekday
     
     # Create monthly calendar plots
     months_per_row = 3
