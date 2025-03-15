@@ -517,8 +517,7 @@ def main():
                 st.write("⚠️ No date column found!")
             
             # Preview the data
-            st.write("Data Preview:")
-            st.dataframe(df.head())
+         
         
         # Rest of your code
         # ...
@@ -608,6 +607,8 @@ def main():
         
         # Show sample data for demonstration even on error
         st.subheader("Demo Data Preview")
+           st.write("Data Preview:")
+            st.dataframe(df.head())
         st.dataframe(get_sample_data().head())
 
 if __name__ == "__main__":
