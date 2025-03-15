@@ -607,7 +607,7 @@ def main():
         
         # Show sample data for demonstration even on error
         st.subheader("Demo Data Preview")
-            st.dataframe(df.head())
+            # st.dataframe(df.head())
         st.dataframe(get_sample_data().head())
 
 if __name__ == "__main__":
