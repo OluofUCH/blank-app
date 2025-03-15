@@ -106,9 +106,26 @@ def get_sample_data():
 
 # 5. Running Consistency Calendar Heatmap
 def render_consistency_heatmap(df):
-    if 'date' not in df.columns or df.empty:
-        st.error("No date data available for heatmap.")
+    # First, check if 'date' column exists and is datetime
+    if 'date' not in df.columns:
+        st.error("No 'date' column found. Available columns: " + ", ".join(df.columns.tolist()))
         return
+    
+    # Check if date column has valid datetime values
+    if not pd.api.types.is_datetime64_dtype(df['date']):
+        st.error("'date' column is not in datetime format. Attempting to convert...")
+        try:
+            df['date'] = pd.to_datetime(df['date'], errors='coerce')
+            # Check if conversion worked
+            if df['date'].isna().all():
+                st.error("Could not convert 'date' column to datetime format.")
+                return
+        except Exception as e:
+            st.error(f"Error converting dates: {e}")
+            return
+    
+    # Rest of your function remains the same
+    # ...
     
     # Create a calendar heatmap
     # Get the year range
@@ -483,19 +500,28 @@ def main():
         # First try to fetch data from Supabase
         df = fetch_data()
         
-        # Check if Supabase returned data
-        if df.empty:
-            st.warning("No data found in Supabase or connection issue. Using sample data for demonstration.")
-            df = get_sample_data()
-            st.info("⚠️ Using SAMPLE DATA for demonstration. Connect your Supabase to see your actual data.")
-        else:
-            # Debug data preview
-            with st.expander("Debug: Data Preview"):
-                st.write("First 5 rows of data:")
-                st.write(df.head())
-                st.write("Data types:")
-                st.write(df.dtypes)
-                st.write("Data shape:", df.shape)
+        # Add extensive diagnostics
+        with st.expander("Data Diagnostics", expanded=True):
+            st.write("Data Shape:", df.shape)
+            st.write("Columns:", df.columns.tolist())
+            
+            # Check for date column specifically
+            if 'date' in df.columns:
+                st.write("Date column exists")
+                st.write("Date type:", df['date'].dtype)
+                st.write("First few dates:", df['date'].head())
+            elif 'start_date' in df.columns:
+                st.write("start_date column exists (should be renamed to date)")
+                st.write("start_date type:", df['start_date'].dtype)
+            else:
+                st.write("⚠️ No date column found!")
+            
+            # Preview the data
+            st.write("Data Preview:")
+            st.dataframe(df.head())
+        
+        # Rest of your code
+        # ...
                 
                 # Check for problematic values
                 for col in df.columns:
