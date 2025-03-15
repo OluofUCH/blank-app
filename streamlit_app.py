@@ -42,6 +42,16 @@ def fetch_data():
         if 'date' in data.columns:
             data['date'] = pd.to_datetime(data['date'])
         
+        # Handle numeric columns - conversion with error handling
+        numeric_columns = ['distance', 'duration', 'pace', 'heart_rate', 'elevation_gain']
+        for col in numeric_columns:
+            if col in data.columns:
+                # Convert with error handling
+                data[col] = pd.to_numeric(data[col], errors='coerce')
+        
+        # Remove rows with invalid numeric data
+        data = data.dropna(subset=[col for col in numeric_columns if col in data.columns])
+        
         return data
     except Exception as e:
         st.error(f"Error fetching data: {e}")
