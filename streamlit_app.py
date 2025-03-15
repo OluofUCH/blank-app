@@ -23,8 +23,8 @@ st.set_page_config(
 # Supabase connection
 @st.cache_resource
 def init_connection():
-    url = st.secrets["supabase_url"]
-    key = st.secrets["supabase_key"]
+    url = st.secrets["https://giuzfwdleogsfpsnphgs.supabase.co"]
+    key = st.secrets["eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdpdXpmd2RsZW9nc2Zwc25waGdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg5Mzc3MzMsImV4cCI6MjA1NDUxMzczM30.EIAv7aIeILgv-9AVGA1jff_aM4stJ8nYCTwOghvfv_M"]
     return create_client(url, key)
 
 # Fetch data from Supabase
