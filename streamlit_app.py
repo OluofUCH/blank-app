@@ -573,27 +573,27 @@ def main():
         tab1, tab2 = st.tabs(["Training Tracking", "Performance Analysis"])
         
         with tab1:
-            st.header("5. Running Consistency Calendar Heatmap")
+            st.header("1. Running Consistency Calendar Heatmap")
             render_consistency_heatmap(df_filtered)
             
         with tab2:
             col1, col2 = st.columns(2)
             
             with col1:
-                st.header("6. Performance Trend Prediction")
+                st.header("2. Performance Trend Prediction")
                 render_performance_regression(df_filtered)
                 
-                st.header("8. Performance by Training Type")
+                st.header("3. Performance by Training Type")
                 render_boxplot_by_training_type(df_filtered)
                 
             with col2:
-                st.header("7. Correlation Matrix")
+                st.header("4. Correlation Matrix")
                 render_correlation_matrix(df_filtered)
                 
-                st.header("9. Outlier Detection")
+                st.header("5. Outlier Detection")
                 render_outlier_detection(df_filtered)
             
-            st.header("10. Clustering Analysis")
+            st.header("6. Clustering Analysis")
             render_clustering_analysis(df_filtered)
             
     except Exception as e:
