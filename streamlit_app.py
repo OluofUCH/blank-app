@@ -199,7 +199,7 @@ def render_performance_regression(df):
         return
     
     # Select metrics
-    metric_options = [col for col in df.columns if col not in ['date', 'id', 'name', 'type', 'notes']]
+    metric_options = [col for col in df.columns if col not in ['date', 'name', 'type', 'notes']]
     if not metric_options:
         st.error("No numerical metrics found in the data.")
         return
