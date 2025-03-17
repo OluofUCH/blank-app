@@ -318,15 +318,14 @@ def render_boxplot_by_training_type(df):
         return
     
     # Select performance metric
-   metric_options = [col for col in df.columns if col not in ['date', 'id', 'name', 'type', 'notes']]
+    metric_options = [col for col in df.columns if col not in ['date', 'id', 'name', 'type', 'notes']]
     if not metric_options:
         st.error("No numerical metrics found in the data.")
         return
     
-    # Completely rewrite this line with consistent indentation
     selected_metric = st.selectbox("Select Performance Metric", metric_options, 
                                   index=metric_options.index('distance') if 'distance' in metric_options else 0, 
-                                  key="regression_metric")
+                                  key="boxplot_metric")
     
     # Create box plot
     fig = px.box(
