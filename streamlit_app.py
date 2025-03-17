@@ -348,6 +348,7 @@ def render_boxplot_by_training_type(df):
     st.plotly_chart(fig, use_container_width=True)
 
 # 9. Outlier Detection
+# 9. Outlier Detection
 def render_outlier_detection(df):
     # Select metric for outlier detection
     metric_options = [col for col in df.columns if col not in ['date', 'id', 'name', 'type', 'notes']]
@@ -356,7 +357,9 @@ def render_outlier_detection(df):
         st.error("No numerical metrics found in the data.")
         return
     
-    selected_metric = st.selectbox("Select Metric for Outlier Detection", metric_options, key="outlier_metric")
+    selected_metric = st.selectbox("Select Metric for Outlier Detection", metric_options, 
+                                  index=metric_options.index('distance') if 'distance' in metric_options else 0,
+                                  key="outlier_metric")
     
     # Create a copy of the dataframe with relevant columns
     outlier_df = df[['date', selected_metric]].dropna().copy()
