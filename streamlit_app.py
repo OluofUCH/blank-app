@@ -204,12 +204,11 @@ def render_performance_regression(df):
         st.error("No numerical metrics found in the data.")
         return
     
- selected_metric = st.selectbox(
-    "Select Performance Metric", 
-    metric_options, 
-    index=metric_options.index('distance') if 'distance' in metric_options else 0, 
-    key="regression_metric"
-)
+    # Completely rewrite this line with consistent indentation
+    selected_metric = st.selectbox("Select Performance Metric", metric_options, 
+                                  index=metric_options.index('distance') if 'distance' in metric_options else 0, 
+                                  key="regression_metric")
+    
     # Create a copy of the data with only relevant columns
     regression_data = df[['date', selected_metric]].dropna().copy()
     
